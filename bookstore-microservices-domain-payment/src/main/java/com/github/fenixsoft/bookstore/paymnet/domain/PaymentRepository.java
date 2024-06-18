@@ -16,27 +16,18 @@
  *        https://github.com/fenixsoft
  */
 
-package com.github.fenixsoft.bookstore.domain.security;
+package com.github.fenixsoft.bookstore.paymnet.domain;
 
-import com.github.fenixsoft.bookstore.domain.account.Account;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.util.Optional;
+import org.springframework.data.repository.CrudRepository;
 
 /**
- * 认证用户的数据仓库
+ * 支付单数据仓库
  *
  * @author icyfenix@gmail.com
- * @date 2020/3/8 15:21
+ * @date 2020/3/12 23:25
  **/
-@Component
-public class AuthenticAccountRepository {
-    @Autowired
-    private AccountServiceClient userService;
+public interface PaymentRepository extends CrudRepository<Payment, Integer> {
 
-    public AuthenticAccount findByUsername(String username) {
-        Account account = userService.findByUsername(username);
-        return Optional.ofNullable(account).map(AuthenticAccount::new).orElse(null);
-    }
+    Payment getByPayId(String payId);
+
 }

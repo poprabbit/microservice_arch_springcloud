@@ -3,9 +3,13 @@ package com.github.fenixsoft.bookstore.paymnet.mock;
 import com.github.fenixsoft.bookstore.domain.warehouse.DeliveredStatus;
 import com.github.fenixsoft.bookstore.domain.warehouse.Product;
 import com.github.fenixsoft.bookstore.domain.warehouse.Stockpile;
+import com.github.fenixsoft.bookstore.dto.Item;
+import com.github.fenixsoft.bookstore.infrastructure.jaxrs.CodedMessage;
 import com.github.fenixsoft.bookstore.paymnet.domain.client.ProductServiceClient;
 
 import javax.inject.Named;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author icyfenix@gmail.com
@@ -13,6 +17,11 @@ import javax.inject.Named;
  **/
 @Named
 public class ProductServiceClientMock implements ProductServiceClient {
+
+    @Override
+    public List<Product> frozenBySettlement(Collection<Item> items) {
+        return null;
+    }
 
     @Override
     public Product getProduct(Integer id) {
@@ -34,7 +43,8 @@ public class ProductServiceClientMock implements ProductServiceClient {
     }
 
     @Override
-    public void setDeliveredStatus(Integer productId, DeliveredStatus status, Integer amount) {
+    public CodedMessage setDeliveredStatus(Integer productId, DeliveredStatus status, Integer amount, String payId) {
+        return null;
     }
 
     @Override

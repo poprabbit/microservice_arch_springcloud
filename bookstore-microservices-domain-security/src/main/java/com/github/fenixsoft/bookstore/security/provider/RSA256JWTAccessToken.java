@@ -1,6 +1,7 @@
 package com.github.fenixsoft.bookstore.security.provider;
 
 import com.github.fenixsoft.bookstore.infrastructure.security.JWTAccessToken;
+import com.github.fenixsoft.bookstore.infrastructure.security.RSA256PublicJWTAccessToken;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,8 +22,7 @@ import java.util.Map;
 /**
  * 使用RSA SHA256私钥加密的JWT令牌
  * <p>
- * 在Infrastructure工程中提供了{@link com.github.fenixsoft.bookstore.infrastructure.security.RSA256PublicJWTAccessToken}作为公钥验证用途。
- * 为了便于对比，
+ * 在Infrastructure工程中提供了{@link RSA256PublicJWTAccessToken}作为公钥验证用途。
  *
  * @author icyfenix@gmail.com
  * @date 2020/7/17 15:02

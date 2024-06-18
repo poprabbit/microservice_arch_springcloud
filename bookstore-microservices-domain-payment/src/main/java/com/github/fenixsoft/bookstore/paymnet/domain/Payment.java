@@ -60,7 +60,11 @@ public class Payment extends BaseEntity {
         /**
          * 不支持的模式（仅用在测试中）
          */
-        NOT_SUPPORT
+        NOT_SUPPORT,
+        /**
+         * 已完成
+         */
+        ACCOMPLISHED,
     }
 
     public Payment() {

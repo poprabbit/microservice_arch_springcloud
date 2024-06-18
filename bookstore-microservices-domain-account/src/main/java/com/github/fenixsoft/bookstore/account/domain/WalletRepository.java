@@ -16,9 +16,8 @@
  *        https://github.com/fenixsoft
  */
 
-package com.github.fenixsoft.bookstore.paymnet.domain.repository;
+package com.github.fenixsoft.bookstore.account.domain;
 
-import com.github.fenixsoft.bookstore.paymnet.domain.Wallet;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;

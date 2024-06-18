@@ -18,6 +18,7 @@
 
 package com.github.fenixsoft.bookstore.warehouse.domain;
 
+import com.github.fenixsoft.bookstore.domain.warehouse.Product;
 import com.github.fenixsoft.bookstore.domain.warehouse.Stockpile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,9 @@ public class StockpileService {
 
     @Inject
     private StockpileRepository repository;
+
+    @Inject
+    private ProductRepository productRepository;
 
     /**
      * 根据产品查询库存
@@ -74,11 +78,14 @@ public class StockpileService {
      * 货物冻结
      * 从正常货物中移动指定数量至冻结状态
      */
-    public void frozen(Integer productId, Integer amount) {
+    public Product frozen(Integer productId, Integer amount) {
         Stockpile stock = repository.findById(productId).orElseThrow(() -> new EntityNotFoundException(productId.toString()));
         stock.frozen(amount);
         repository.save(stock);
         log.info("冻结库存，商品：{}，数量：{}，现有库存：{}，现存冻结：{}", productId, amount, stock.getAmount(), stock.getFrozen());
+        Product product = productRepository.findById(productId).orElseThrow(() -> new EntityNotFoundException(productId.toString()));
+        stock.setProduct(product);
+        return stock.getProduct();
     }
 
     /**

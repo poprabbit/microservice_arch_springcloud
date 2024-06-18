@@ -16,19 +16,17 @@
  *        https://github.com/fenixsoft
  */
 
-package com.github.fenixsoft.bookstore.paymnet.domain.repository;
+package com.github.fenixsoft.bookstore.warehouse.domain;
 
-import com.github.fenixsoft.bookstore.paymnet.domain.Payment;
 import org.springframework.data.repository.CrudRepository;
 
 /**
- * 支付单数据仓库
+ * 库存数据仓库
  *
  * @author icyfenix@gmail.com
- * @date 2020/3/12 23:25
+ * @date 2020/3/12 16:36
  **/
-public interface PaymentRepository extends CrudRepository<Payment, Integer> {
+public interface PaymentStockpileRepository extends CrudRepository<PaymentStockpile, Integer> {
 
-    Payment getByPayId(String payId);
 
 }

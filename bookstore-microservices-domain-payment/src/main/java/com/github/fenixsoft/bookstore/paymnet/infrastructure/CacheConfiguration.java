@@ -1,4 +1,4 @@
-package com.github.fenixsoft.bookstore.infrastructure.cache;
+package com.github.fenixsoft.bookstore.paymnet.infrastructure;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.cache.Cache;
@@ -30,6 +30,11 @@ public class CacheConfiguration {
         CaffeineCacheManager manager = new CaffeineCacheManager();
         manager.setCaffeine(Caffeine.newBuilder().expireAfterWrite(SYSTEM_DEFAULT_EXPIRES, TimeUnit.MILLISECONDS));
         return manager;
+    }
+
+    @Bean(name = "settlement")
+    public Cache getSettlementTTLCache() {
+        return new CaffeineCache("settlement", Caffeine.newBuilder().expireAfterAccess(SYSTEM_DEFAULT_EXPIRES, TimeUnit.MILLISECONDS).build());
     }
 
 }

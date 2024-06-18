@@ -30,17 +30,12 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * OAuth2客户端类型定义
  * <p>
- * OAuth2支持四种授权模式，这里仅定义了密码模式（Resource Owner Password Credentials Grant）一种
- * OAuth2作为开放的（面向不同服务提供商）授权协议，要求用户提供明文用户名、密码的这种“密码模式”并不常用
- * 而这里可以采用是因为前端（BookStore FrontEnd）与后端服务是属于同一个服务提供者的，实质上不存在密码会不会被第三方保存的敏感问题
- * 如果永远只考虑单体架构、单一服务提供者，则并无引入OAuth的必要，Spring Security的表单认证就能很良好、便捷地解决认证和授权的问题
- * 这里使用密码模式来解决，是为了下一阶段演示微服务化后，服务之间鉴权作准备，以便后续扩展以及对比。
+ * OAuth2支持四种授权模式，这里前端API使用密码授权模式，微服务使用客户端授权模式。
  *
  * @author icyfenix@gmail.com
  * @date 2020/3/7 19:45
@@ -87,7 +82,7 @@ public class OAuthClientDetailsService implements ClientDetailsService {
      * 客户端列表
      * <p>
      * 此场景中微服务一种有JavaScript前端、Account微服务、Warehouse微服务、Payment微服务四种客户端
-     * 如果正式使用，这部分信息应该做成可以配置的，以便快速增加微服务的类型。clientSecret也不应该出现在源码中，应由外部配置传入
+     * todo 如果正式使用，这部分信息应该做成可以配置的，以便快速增加微服务的类型。clientSecret也不应该出现在源码中，应由外部配置传入
      */
     private static final List<Client> clients = Arrays.asList(
             new Client("bookstore_frontend", "bookstore_secret", new String[]{GrantType.PASSWORD, GrantType.REFRESH_TOKEN}, new String[]{Scope.BROWSER}),
@@ -104,7 +99,7 @@ public class OAuthClientDetailsService implements ClientDetailsService {
     private ClientDetailsService clientDetailsService;
 
     /**
-     * 构造密码授权模式
+     * 构造OAuth2客户端服务
      *
      * <p>
      * 授权Endpoint示例：
@@ -116,7 +111,7 @@ public class OAuthClientDetailsService implements ClientDetailsService {
     public void init() throws Exception {
         InMemoryClientDetailsServiceBuilder builder = new InMemoryClientDetailsServiceBuilder();
         clients.forEach(client -> {
-            // 提供客户端ID和密钥，并指定该客户端支持密码授权、刷新令牌两种访问类型
+            // 提供客户端ID和密钥，并指定该客户端支持的授权类型
             builder.withClient(client.clientId)
                     .secret(passwordEncoder.encode(client.clientSecret))
                     .scopes(client.scopes)

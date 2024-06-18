@@ -13,6 +13,15 @@ import javax.validation.constraints.NotNull;
  **/
 public class Item {
 
+    public Item() {
+
+    }
+
+    public Item(Integer amount, Integer productId) {
+        this.amount = amount;
+        this.productId = productId;
+    }
+
     @NotNull(message = "结算单中必须有明确的商品数量")
     @Min(value = 1, message = "结算单中商品数量至少为一件")
     private Integer amount;

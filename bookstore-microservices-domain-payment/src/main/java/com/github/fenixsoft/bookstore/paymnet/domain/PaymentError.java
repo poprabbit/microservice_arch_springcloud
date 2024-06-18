@@ -19,50 +19,48 @@
 package com.github.fenixsoft.bookstore.paymnet.domain;
 
 import com.github.fenixsoft.bookstore.domain.BaseEntity;
-import com.github.fenixsoft.bookstore.domain.account.Account;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 
 /**
- * 用户钱包
+ * 支付单三方支付模型
+ * <p>
+ * 就是传到客户端让用户给扫码或者其他别的方式付钱的对象
  *
  * @author icyfenix@gmail.com
- * @date 2020/3/12 16:30
+ * @date 2020/3/12 17:07
  **/
-
 @Entity
-public class Wallet extends BaseEntity {
+public class PaymentError extends BaseEntity {
 
-    public Wallet() {
-        // for JPA
+
+    private String payId;
+    private Integer productId;
+    private Integer amount;
+
+
+    public String getPayId() {
+        return payId;
     }
 
-    public Wallet(Integer accountId, Double money) {
-        setAccountId(accountId);
-        setMoney(money);
+    public void setPayId(String payId) {
+        this.payId = payId;
     }
 
-    // 这里是偷懒，正式项目中请使用BigDecimal来表示金额
-    private Double money;
 
-    private Integer accountId;
-
-    public Double getMoney() {
-        return money;
+    public Integer getProductId() {
+        return productId;
     }
 
-    public void setMoney(Double money) {
-        this.money = money;
+    public void setProductId(Integer productId) {
+        this.productId = productId;
     }
 
-    public Integer getAccountId() {
-        return accountId;
+    public Integer getAmount() {
+        return amount;
     }
 
-    public void setAccountId(Integer accountId) {
-        this.accountId = accountId;
+    public void setAmount(Integer amount) {
+        this.amount = amount;
     }
 }

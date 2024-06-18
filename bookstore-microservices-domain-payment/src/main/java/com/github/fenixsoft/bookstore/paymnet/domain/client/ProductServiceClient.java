@@ -3,14 +3,17 @@ package com.github.fenixsoft.bookstore.paymnet.domain.client;
 import com.github.fenixsoft.bookstore.domain.warehouse.DeliveredStatus;
 import com.github.fenixsoft.bookstore.domain.warehouse.Product;
 import com.github.fenixsoft.bookstore.domain.warehouse.Stockpile;
+import com.github.fenixsoft.bookstore.dto.Item;
 import com.github.fenixsoft.bookstore.dto.Settlement;
+import com.github.fenixsoft.bookstore.infrastructure.jaxrs.CodedMessage;
 import org.springframework.cloud.openfeign.FeignClient;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * 仓库商品和库存相关远程服务
@@ -21,9 +24,17 @@ import java.util.stream.Stream;
 @FeignClient(name = "warehouse")
 public interface ProductServiceClient {
 
-    default void replenishProductInformation(Settlement bill) {
-        bill.productMap = Stream.of(getProducts()).collect(Collectors.toMap(Product::getId, Function.identity()));
+    /**
+     * 是否需要判断执行结果？
+     */
+    default void frozenAndReplenishProducts(Settlement bill) {
+        bill.productMap = frozenBySettlement(bill.getItems()).stream().collect(Collectors.toMap(Product::getId, Function.identity()));
     }
+
+    @PATCH
+    @Path("/restful/products/stockpile/frozenBySettlement")
+    @Consumes(MediaType.APPLICATION_JSON)
+    List<Product> frozenBySettlement(@QueryParam("items") Collection<Item> items);
 
     @GET
     @Path("/restful/products/{id}")
@@ -35,26 +46,18 @@ public interface ProductServiceClient {
     @Consumes(MediaType.APPLICATION_JSON)
     Product[] getProducts();
 
-    default void decrease(Integer productId, Integer amount) {
-        setDeliveredStatus(productId, DeliveredStatus.DECREASE, amount);
+    default CodedMessage decrease(Integer productId, Integer amount, String payId) {
+        return setDeliveredStatus(productId, DeliveredStatus.DECREASE, amount, payId);
     }
 
-    default void increase(Integer productId, Integer amount) {
-        setDeliveredStatus(productId, DeliveredStatus.INCREASE, amount);
-    }
-
-    default void frozen(Integer productId, Integer amount) {
-        setDeliveredStatus(productId, DeliveredStatus.FROZEN, amount);
-    }
-
-    default void thawed(Integer productId, Integer amount) {
-        setDeliveredStatus(productId, DeliveredStatus.THAWED, amount);
+    default CodedMessage thawed(Integer productId, Integer amount, String payId) {
+        return setDeliveredStatus(productId, DeliveredStatus.THAWED, amount, payId);
     }
 
     @PATCH
     @Path("/restful/products/stockpile/delivered/{productId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    void setDeliveredStatus(@PathParam("productId") Integer productId, @QueryParam("status") DeliveredStatus status, @QueryParam("amount") Integer amount);
+    CodedMessage setDeliveredStatus(@PathParam("productId") Integer productId, @QueryParam("status") DeliveredStatus status, @QueryParam("amount") Integer amount, @QueryParam("payId") String payId);
 
     @GET
     @Path("/restful/products/stockpile/{productId}")

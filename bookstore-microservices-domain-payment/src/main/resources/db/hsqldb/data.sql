@@ -1,1 +1,1 @@
-INSERT INTO wallet VALUES (1, 300, 1);
+INSERT INTO wallet VALUES (1, 900, 1);

@@ -87,6 +87,9 @@ public abstract class CommonResponse {
         try {
             executor.run();
             return CommonResponse.success();
+        } catch (IdempotenceException ie) {
+            exceptionConsumer.accept(ie);
+            return CommonResponse.success(ie.getMessage());
         } catch (Exception e) {
             exceptionConsumer.accept(e);
             return CommonResponse.failure(e.getMessage());

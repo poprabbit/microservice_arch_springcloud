@@ -1,12 +1,20 @@
 package com.github.fenixsoft.bookstore.warehouse.application;
 
 import com.github.fenixsoft.bookstore.domain.warehouse.DeliveredStatus;
+import com.github.fenixsoft.bookstore.domain.warehouse.Product;
 import com.github.fenixsoft.bookstore.domain.warehouse.Stockpile;
+import com.github.fenixsoft.bookstore.dto.Item;
+import com.github.fenixsoft.bookstore.infrastructure.jaxrs.IdempotenceException;
+import com.github.fenixsoft.bookstore.warehouse.domain.PaymentStockpile;
+import com.github.fenixsoft.bookstore.warehouse.domain.PaymentStockpileRepository;
 import com.github.fenixsoft.bookstore.warehouse.domain.StockpileService;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.transaction.Transactional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 商品库存的领域服务
@@ -20,6 +28,9 @@ public class StockpileApplicationService {
 
     @Inject
     private StockpileService stockpileService;
+
+    @Inject
+    private PaymentStockpileRepository paymentStockpileRepository;
 
     /**
      * 根据产品查询库存
@@ -38,7 +49,14 @@ public class StockpileApplicationService {
     /**
      * 调整商品出库状态
      */
-    public void setDeliveredStatus(Integer productId, DeliveredStatus status, Integer amount) {
+    public void setDeliveredStatus(Integer productId, DeliveredStatus status, Integer amount, String payId) {
+        try {
+            // 唯一主键保证幂等
+            paymentStockpileRepository.save(new PaymentStockpile(payId, productId, status.name()));
+        } catch (DataIntegrityViolationException e) {
+            String msg = String.format("PaymentStockpile Idempotent, payId: %s, productId: %s, status: %s", payId, productId, status);
+            throw new IdempotenceException(msg);
+        }
         switch (status) {
             case DECREASE:
                 stockpileService.decrease(productId, amount);
@@ -53,6 +71,15 @@ public class StockpileApplicationService {
                 stockpileService.thawed(productId, amount);
                 break;
         }
+    }
+
+    /**
+     * 冻结库存并填充商品信息
+     */
+    public List<Product> frozenAndReplenishProducts(List<Item> items) {
+        return items.stream()
+                .map(i -> stockpileService.frozen(i.getProductId(), i.getAmount()))
+                .collect(Collectors.toList());
     }
 
 }

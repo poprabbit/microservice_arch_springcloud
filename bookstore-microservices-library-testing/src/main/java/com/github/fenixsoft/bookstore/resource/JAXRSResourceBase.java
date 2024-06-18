@@ -1,16 +1,12 @@
 package com.github.fenixsoft.bookstore.resource;
 
-import com.github.fenixsoft.bookstore.domain.account.Account;
-import com.github.fenixsoft.bookstore.domain.security.AuthenticAccount;
 import com.github.fenixsoft.bookstore.infrastructure.security.JWTAccessToken;
-import com.github.fenixsoft.bookstore.infrastructure.security.JWTAccessTokenService;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 
 import javax.inject.Inject;
 import javax.ws.rs.client.ClientBuilder;
@@ -18,7 +14,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.*;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -71,6 +66,15 @@ public class JAXRSResourceBase extends DBRollbackBase {
         accessToken = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJpY3lmZW5peCIsInNjb3BlIjpbIkJST1dTRVIiXSwiZXhwIjozMTcxNzc5NTc1LCJhdXRob3JpdGllcyI6WyJST0xFX1VTRVIiLCJST0xFX0FETUlOIl0sImp0aSI6IjZmMzM1ODRhLTE0OTgtNGJhYi05ZTcwLTBhN2Y5MDk5YzIwMyIsImNsaWVudF9pZCI6ImJvb2tzdG9yZV9mcm9udGVuZCIsInVzZXJuYW1lIjoiaWN5ZmVuaXgifQ.VeufGCgg_royfFeFVNJgV8zSQETt9PCGDQS_XCsv4yiWxKQvvWYVqx_714VoI4LBsdGSVDSdYfClvIOMHK7RS6qI1xiw7QHfhreFqYmLBYKvbhNJmmfZFw8lLeaQ68XDpFX1BjkIveyvURFCedCffqhU8DgGSxwHZVJ61mSnqt6OE8JDXKv18gP7rmsg4xDwkvyy-CL9kBKEsSx9iZ8Dm14O0EYPenyhXW7DESPOL63SEusjkjTdK5z_G-vBAeuMkAJZlh9a4DtWBnI5PMjfl_kBcgYePOrA1GypZqH7mgHXGybLEV5VpGaOZuJCNRWCjT5NgF4NhlgAEwMnctdMJg";
     }
 
+    /**
+     * 单元测试中微服务客户端令牌
+     */
+    private void loginService() {
+        // 这是一个50年后才会过期的令牌，囧
+        // RS256 JWT
+        accessToken = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImJvb2tzdG9yZS1qd3Qta2lkIn0.eyJzY29wZSI6WyJTRVJWSUNFIl0sImV4cCI6MzI5NTUwMzEzOSwianRpIjoiNGM5MTg1ZDMtZTliZi00OGQ3LWE2NzItZTQ5NDRjZTM1MDA3IiwiY2xpZW50X2lkIjoid2FyZWhvdXNlIn0.faqBWX7HSTOYce-EcLIC6WZxc7ghlVdC3McyyOszjSST1GDxs-_W7lmm6dkAFM5jM1TtFMtu37YLc62ZCbp9O9nihBrJJn4Ci7xDCVUP8ii2VxXLotlt9iVJ7E3kCRvdHhGiu-Y2vd2UkxIkH9n7vHQgjhyT7gcjfTX77JNDr-XZa2gDeSZxL7cQB8xNE2ZvwMJhbZ1fi5lJooX1bVaIapcvF9W0UMd3cYfn2TYShRwAJ-0kDx5Zfc82QUz4IzwugWK4VHjQh4YiW6BpLmbMDYK7xI3th5AAD0bxl1Fd3d6EMG6ctfhsJZf_bcrleKXgs2OMMQFwVt6xGJUUAyMaMg";
+    }
+
     protected void logout() {
         accessToken = null;
     }
@@ -78,6 +82,15 @@ public class JAXRSResourceBase extends DBRollbackBase {
     protected void authenticatedScope(Runnable runnable) {
         try {
             login();
+            runnable.run();
+        } finally {
+            logout();
+        }
+    }
+
+    protected void authenticatedService(Runnable runnable) {
+        try {
+            loginService();
             runnable.run();
         } finally {
             logout();
@@ -111,6 +124,10 @@ public class JAXRSResourceBase extends DBRollbackBase {
 
     protected Response patch(String path) {
         return build(path).method("PATCH", Entity.text("MUST_BE_PRESENT"));
+    }
+
+    protected Response patch(String path, Object entity) {
+        return build(path).method("PATCH", Entity.json(entity));
     }
 
     protected static void assertOK(Response response) {
